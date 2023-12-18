@@ -5,10 +5,6 @@ import random
 from datetime import datetime
 from urllib import parse
 
-import schedule
-import time
-import asyncio
-
 import httpx
 from dotenv import find_dotenv, load_dotenv
 
@@ -65,7 +61,7 @@ class Action:
         # self.corpsecret = os.environ.get('CORPSECRET', '')
         self.corpid = 'ww60ea66699fe5c551'
         self.agentid = '1000002'
-        self.thumbmediaid = '34qvVOmfSym3dvvkgqwMXkpvkRCI3wj-masu-w3o2JrFMuHqitJHCf0cNRiBpV6wc'
+        self.thumbmediaid = os.environ.get('THUMBMEDIAID', '')
         self.corpsecret = 'AGAEKr4HsQFbBsb4YAyp8BaoLGVocRQ3f8x-h48pWGY'
 
         self.contents = []
@@ -107,7 +103,7 @@ class Action:
         except Exception as e:
             print(f'something error occurred, message: {e}')
 
-        
+
 
 
     async def servechan(self):
@@ -268,46 +264,16 @@ class Action:
             self.task_list.append(asyncio.create_task(self.get_xzAliyun_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_seebug_hot_topics()))
 
+            await asyncio.gather(*self.task_list)
+
             # 自行修改对应的发送方式
             # await self.servechan()
             await self.qywx()
 
             # print(f'{"".join(self.contents)}')
 
-            await asyncio.gather(*self.task_list)
-    async def run_action(self):
-        async with httpx.AsyncClient() as client:
-            self.client = client
-            await action.run()
 
-    async def qywx_job(self):
-        async with httpx.AsyncClient() as client:
-            self.client = client
-            await self.qywx()
-
-    def schedule_job(self):
-        loop = asyncio.get_event_loop()
-        loop.create_task(self.run_action())
-
-    def schedule_qywx_job(self):
-        
-    # 每天早上9点执行任务
-        schedule.every().day.at("20:06").do(lambda: asyncio.run(self.qywx_job()))
-
-    def run_schedule(self):
-        self.schedule_job()
-        self.schedule_qywx_job()
-        while True:
-            schedule.run_pending()
-            time.sleep(60)  # 每隔60秒检查一次是否有任务需要执行
-
-
-
-
-# if __name__ == '__main__':
-#     action = Action()
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(action.run())
 if __name__ == '__main__':
     action = Action()
-    action.run_schedule()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(action.run())
