@@ -61,7 +61,7 @@ class Action:
         # self.corpsecret = os.environ.get('CORPSECRET', '')
         self.corpid = 'ww60ea66699fe5c551'
         self.agentid = '1000002'
-        self.thumbmediaid = os.environ.get('THUMBMEDIAID', '')
+        self.thumbmediaid = '34qvVOmfSym3dvvkgqwMXkpvkRCI3wj-masu-w3o2JrFMuHqitJHCf0cNRiBpV6wc'
         self.corpsecret = 'AGAEKr4HsQFbBsb4YAyp8BaoLGVocRQ3f8x-h48pWGY'
 
         self.contents = []
