@@ -61,7 +61,7 @@ class Action:
         # self.corpsecret = os.environ.get('CORPSECRET', '')
         self.corpid = 'ww60ea66699fe5c551'
         self.agentid = '1000002'
-        self.thumbmediaid = os.environ.get('THUMBMEDIAID', '')
+        self.thumbmediaid = '3Dmx7S_K6YtJ8qIGKE9MrxxyR5k8PsabPR7ZIf4j1FP4_5A0-TLabKkZ5sGmvz38L'
         self.corpsecret = 'AGAEKr4HsQFbBsb4YAyp8BaoLGVocRQ3f8x-h48pWGY'
 
         self.contents = []
@@ -85,10 +85,10 @@ class Action:
                     'msgtype': 'mpnews',
                     'mpnews': {
                         'articles': [{
-                            'title': f'热搜榜 - {date}',
+                            'title': f'每日资讯热文 - {date}',
                             'thumb_media_id': self.thumbmediaid,
                             'author': 'Tonyz',
-                            'digest': f'{time} - 每日热搜推送',
+                            'digest': f'{time} - 每日资讯热文推送',
                             'content': f'{"".join(self.contents)}'
                         }
                         ]
@@ -124,15 +124,20 @@ class Action:
         except Exception as e:
             print(f'something error occurred, message: {e}')
 
-    async def get_v2ex_hot_topics(self):
-        url = 'https://www.v2ex.com/api/topics/hot.json'
-        headers = {'User-Agent': random.choice(USER_AGENTS)}
+    async def get_rmrb_hot_topics(self):
+        url = "https://news.bicido.com/api/news/?type_id=119"
+        headers = {
+            'Referer': 'https://bicido.com/',
+            'Host': 'bicido.com',
+            'User-Agent': random.choice(USER_AGENTS)
+        }
         try:
             resp = await self.client.get(url, headers=headers, timeout=TIMEOUT)
-            self.contents.append(f'<h2> v2ex热门主题 </h2>')
+            self.contents.append(f'\n 人民日报 \n\n')
             for item in resp.json()[:10]:
-                detail_url = item['url']
+                detail_url = item['source_url']
                 title = item['title']
+                # content = f'- [{title}]({detail_url})\n'
                 content = f'<ul><li> <a href={detail_url}>{title}</a> </li></ul>'
                 self.contents.append(content)
         except Exception as e:
@@ -176,8 +181,8 @@ class Action:
         except Exception as e:
             print(f'something error occurred, message: {e}')
 
-    async def get_baidu_hot_topics(self):
-        url = "https://news.bicido.com/api/news/?type_id=37"
+    async def get_jrtt_hot_topics(self):
+        url = "https://news.bicido.com/api/news/?type_id=104"
         headers = {
             'Referer': 'https://bicido.com/',
             'Host': 'bicido.com',
@@ -185,7 +190,7 @@ class Action:
         }
         try:
             resp = await self.client.get(url, headers=headers, timeout=TIMEOUT)
-            self.contents.append(f'\n 百度|今日热点\n\n')
+            self.contents.append(f'\n 今日头条|热搜\n\n')
             for item in resp.json()[:10]:
                 detail_url = item['source_url']
                 title = item['title']
@@ -256,10 +261,10 @@ class Action:
         """主方法"""
         async with httpx.AsyncClient() as client:
             self.client = client
-            self.task_list.append(asyncio.create_task(self.get_v2ex_hot_topics()))
+            self.task_list.append(asyncio.create_task(self.get_rmrb_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_zhihu_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_weibo_hot_search()))
-            self.task_list.append(asyncio.create_task(self.get_baidu_hot_topics()))
+            self.task_list.append(asyncio.create_task(self.get_jrtt_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_freebuf_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_xzAliyun_hot_topics()))
             self.task_list.append(asyncio.create_task(self.get_seebug_hot_topics()))
@@ -274,6 +279,10 @@ class Action:
 
 
 if __name__ == '__main__':
+    dt = datetime.now()
+    date = dt.strftime('%Y-%m-%d')
+    time = dt.strftime('%H:%M:%S')
     action = Action()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(action.run())
+    print(f"运行成功"+':' + date + '-' + time)
